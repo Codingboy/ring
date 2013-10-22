@@ -9,6 +9,7 @@ RM=rm -f
 RMDIR=rm -rf
 MKDIR=mkdir -p
 CC=g++
+CHMOD=chmod -R 777
 
 .PHONY: install clean uninstall
 
@@ -21,8 +22,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -o $@ $<
 
 install:
-	$(CP) $(LIBDIR)/libring.a /usr/lib/
+	$(CP) $(LIBDIR)/libring.a /usr/lib/libring.a
+	$(CHMOD) /usr/lib/libring.a
 	$(MKDIR) /usr/include/ring/
+	$(CHMOD) /usr/include/ring/
 	$(CP) $(INCLUDEDIR)/* /usr/include/ring/
 
 uninstall:
