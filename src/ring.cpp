@@ -4,7 +4,7 @@
 #include <cassert>
 #endif
 
-Ring::Ring(const char* c, unsigned int length, const char* salt, unsigned int saltLength, unsigned int mutationInterval)
+Ring::Ring(const char* key, unsigned int length, const char* salt, unsigned int saltLength, unsigned int mutationInterval)
 {
 #ifndef NDEBUG
 	assert(length > 0);
@@ -20,7 +20,7 @@ Ring::Ring(const char* c, unsigned int length, const char* salt, unsigned int sa
 	this->mutationInterval = mutationInterval;
 	for (unsigned int i=0; i<length; i++)
 	{
-		this->pw[i] = (unsigned char)c[i];
+		this->pw[i] = (unsigned char)key[i];
 	}
 	this->pwLength = length;
 	reinit();
