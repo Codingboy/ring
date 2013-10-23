@@ -9,30 +9,27 @@
 #define IVSIZE (1024)
 #endif
 
-//#define NDEBUG
-
 class Ring
 {
 	public:
 		/**
 		 * Creates a Ring.
 		 * @param[in] c password
-		 * @param[in] length length of c
-		 * @param[in] pos salt (may be public)
-		 * @param[in] posLength length of pos (salt)
+		 * @param[in] length length of \p c
+		 * @param[in] salt salt (may be public)
+		 * @param[in] saltLength length of salt (salt)
 		 * In encodemode this should be set to a random value.
 		 * @param[in] mutationInterval number of operations until ring is mutated (may be public)
 		 * If you want no mutation set it to 0.
 		 * @warning Decreasing mutationInterval too much may cause low performance!
-		 * @pre c is allocated for length characters
-		 * @pre length > 0
-		 * @pre length <= MAPSIZE
-		 * @pre pos is allocated for posLength characters
-		 * @pre posLength > 0
-		 * @pre mutationInterval%IVSIZE == 0 if MULTICORE is defined
-		 * @note Define MULTICORE to make Ring multithread compatible. If MULTICORE is defined, you have to call shuffle() manually and by this mutating the ring. You also should use the posIndex correctly.
+		 * @pre \p key is allocated for length characters
+		 * @pre \p length > 0
+		 * @pre \p length <= MAPSIZE
+		 * @pre \p salt is allocated for \p saltLength characters
+		 * @pre \p saltLength > 0
+		 * @pre \p saltLength <= IVSIZE
 		 */
-		Ring(const unsigned char* c, unsigned int length, const unsigned char* pos, unsigned int posLength, unsigned int mutationInterval);
+		Ring(const char* key, unsigned int length, const char* salt, unsigned int saltLength, unsigned int mutationInterval);
 		/**
 		 * Deletes a Ring.
 		 */
@@ -44,41 +41,21 @@ class Ring
 		 */
 		void reinit();
 		/**
-		 * Encodes a single character.
-		 * @param[in] c character to encode
-		 * @param[in] posIndex points to the salt used to encode the byte
-		 * @pre posIndex < IVSIZE if MULTICORE is defined
-		 * @return encoded character
-		 */
-		unsigned char encode(unsigned char c);
-		/**
-		 * Decodes a single character.
-		 * @param[in] c character to decode
-		 * @param[in] posIndex points to the salt used to decode the byte
-		 * @pre posIndex < IVSIZE if MULTICORE is defined
-		 * @return decoded character
-		 */
-		unsigned char decode(unsigned char c);
-		/**
 		 * Encodes an array of characters inplace.
 		 * @param[in,out] c array of characters to encode
-		 * @param[in] posIndex points to the salt used to encode the byte
-		 * @pre posIndex < IVSIZE if MULTICORE is defined
-		 * @pre c is allocated for length characters
+		 * @pre \p c is allocated for \p length characters
 		 * @pre length > 0
-		 * @post c contains encoded characters
+		 * @post \p c contains encoded characters
 		 */
-		void encode(unsigned char* c, unsigned int length);
+		void encode(char* c, unsigned int length);
 		/**
 		 * Decodes an array of characters inplace.
 		 * @param[in,out] c array of characters to decode
-		 * @param[in] posIndex points to the salt used to decode the byte
-		 * @pre posIndex < IVSIZE if MULTICORE is defined
-		 * @pre c is allocated for length characters
-		 * @pre length > 0
-		 * @post c contains decoded characters
+		 * @pre \p c is allocated for \p length characters
+		 * @pre \p length > 0
+		 * @post \p c contains decoded characters
 		 */
-		void decode(unsigned char* c, unsigned int length);
+		void decode(char* c, unsigned int length);
 	protected:
 		unsigned char last;
 		/**
@@ -91,15 +68,27 @@ class Ring
 		/**
 		 * Mutates the map depending on the key.
 		 * This method is used to initialise the ring.
-		 * @deprecated This method is only in use for initialisation of the ring. All other mutations are done with shuffle() because this method needs to much time.
+		 * @deprecated This method is only in use for initialisation of the ring. All other mutations are done with shuffle() because this method needs too much time.
 		 */
 		void mutate();
+		/**
+		 * Encodes a single character.
+		 * @param[in] c character to encode
+		 * @return encoded character
+		 */
+		unsigned char encode(unsigned char c);
+		/**
+		 * Decodes a single character.
+		 * @param[in] c character to decode
+		 * @return decoded character
+		 */
+		unsigned char decode(unsigned char c);
 		unsigned char map[MAPSIZE];
 		unsigned char decodeMap[MAPSIZE];
-		unsigned char pos[IVSIZE];
-		unsigned int posLength;
-		unsigned char initPos[IVSIZE];
-		unsigned int actualPos;
+		unsigned char salt[IVSIZE];
+		unsigned int saltLength;
+		unsigned char initSalt[IVSIZE];
+		unsigned int actualSalt;
 		unsigned char pw[MAPSIZE];
 		unsigned int pwLength;
 	private:

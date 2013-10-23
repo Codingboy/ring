@@ -4,25 +4,23 @@
 #include <cassert>
 #endif
 
-#include <cstdio>
-
-Ring::Ring(const unsigned char* c, unsigned int length, const unsigned char* pos, unsigned int posLength, unsigned int mutationInterval)
+Ring::Ring(const char* c, unsigned int length, const char* salt, unsigned int saltLength, unsigned int mutationInterval)
 {
 #ifndef NDEBUG
 	assert(length > 0);
 	assert(length <= MAPSIZE);
-	assert(posLength > 0);
-	assert(posLength <= IVSIZE);
+	assert(saltLength > 0);
+	assert(saltLength <= IVSIZE);
 #endif
-	this->posLength = posLength;
-	for (unsigned int i=0; i<posLength; i++)
+	this->saltLength = saltLength;
+	for (unsigned int i=0; i<saltLength; i++)
 	{
-		this->initPos[i] = pos[i];
+		this->initSalt[i] = (unsigned char)salt[i];
 	}
 	this->mutationInterval = mutationInterval;
 	for (unsigned int i=0; i<length; i++)
 	{
-		this->pw[i] = c[i];
+		this->pw[i] = (unsigned char)c[i];
 	}
 	this->pwLength = length;
 	reinit();
@@ -35,15 +33,15 @@ Ring::~Ring()
 void Ring::reinit()
 {
 	this->last = 0;
-	this->actualPos = 0;
+	this->actualSalt = 0;
 	for (unsigned int i=0; i<MAPSIZE; i++)
 	{
 		this->map[i] = i;
 	}
 	this->operationsSinceMutation = 0;
-	for (unsigned int i=0; i<posLength; i++)
+	for (unsigned int i=0; i<saltLength; i++)
 	{
-		this->pos[i] = this->initPos[i];
+		this->salt[i] = this->initSalt[i];
 	}
 	mutate();
 }
@@ -52,7 +50,7 @@ void Ring::shuffle()
 {
 	for (unsigned int i=0; i<MAPSIZE; i++)
 	{
-		unsigned char index = (this->map[i] ^ this->pos[i%this->posLength])%MAPSIZE;
+		unsigned char index = (this->map[i] ^ this->salt[i%this->saltLength])%MAPSIZE;
 		unsigned char tmp = this->map[index];
 		this->map[index] = this->map[i];
 		this->map[i] = tmp;
@@ -123,11 +121,11 @@ unsigned char Ring::encode(unsigned char c)
 #ifndef NDEBUG
 	assert(c < MAPSIZE);
 #endif
-	unsigned int posIndex = this->actualPos;
-	this->actualPos = (posIndex + 1)%this->posLength;
-	unsigned int index = (c ^ this->pos[posIndex])%MAPSIZE;
+	unsigned int saltIndex = this->actualSalt;
+	this->actualSalt = (saltIndex + 1)%this->saltLength;
+	unsigned int index = (c ^ this->salt[saltIndex])%MAPSIZE;
 	unsigned char ret = (this->map[index] ^ this->last)%MAPSIZE;
-	this->pos[posIndex] = ret;
+	this->salt[saltIndex] = ret;
 	if (this->mutationInterval != 0)
 	{
 		this->operationsSinceMutation++;
@@ -146,10 +144,10 @@ unsigned char Ring::decode(unsigned char c)
 #ifndef NDEBUG
 	assert(c < MAPSIZE);
 #endif
-	unsigned int posIndex = this->actualPos;
-	this->actualPos = (posIndex + 1)%this->posLength;
-	unsigned char ret = (decodeMap[(c ^ this->last)%MAPSIZE] ^ this->pos[posIndex])%MAPSIZE;
-	this->pos[posIndex] = c;
+	unsigned int saltIndex = this->actualSalt;
+	this->actualSalt = (saltIndex + 1)%this->saltLength;
+	unsigned char ret = (decodeMap[(c ^ this->last)%MAPSIZE] ^ this->salt[saltIndex])%MAPSIZE;
+	this->salt[saltIndex] = c;
 	if (this->mutationInterval != 0)
 	{
 		this->operationsSinceMutation++;
@@ -163,24 +161,24 @@ unsigned char Ring::decode(unsigned char c)
 	return ret;
 }
 
-void Ring::encode(unsigned char* c, unsigned int length)
+void Ring::encode(char* c, unsigned int length)
 {
 #ifndef NDEBUG
 	assert(length > 0);
 #endif
 	for (unsigned int i=0; i<length; i++)
 	{
-		c[i] = encode(c[i]);
+		c[i] = (char)encode((unsigned char)c[i]);
 	}
 }
 
-void Ring::decode(unsigned char* c, unsigned int length)
+void Ring::decode(char* c, unsigned int length)
 {
 #ifndef NDEBUG
 	assert(length > 0);
 #endif
 	for (unsigned int i=0; i<length; i++)
 	{
-		c[i] = decode(c[i]);
+		c[i] = (char)decode((unsigned char)c[i]);
 	}
 }
