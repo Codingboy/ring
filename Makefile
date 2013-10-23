@@ -3,7 +3,7 @@ OBJDIR=obj
 INCLUDEDIR=include
 SRCDIR=src
 DOCDIR=doc
-CFLAGS=-std=c++0x -Wall -c -Os -c -I\$(INCLUDEDIR)
+CFLAGS=-std=c++0x -Wall -c -Os -I\$(INCLUDEDIR)
 CP=cp
 RM=rm -f
 RMDIR=rm -rf
