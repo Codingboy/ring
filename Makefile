@@ -3,17 +3,18 @@ OBJDIR=obj
 INCLUDEDIR=include
 SRCDIR=src
 DOCDIR=doc
-CFLAGS=-std=c++0x -Wall -c -Os -I\$(INCLUDEDIR)
+CFLAGS=-std=c++0x -Wall -Os -c -I$(INCLUDEDIR) -I/usr/include/
 CP=cp
 RM=rm -f
 RMDIR=rm -rf
 MKDIR=mkdir -p
 CC=g++
 CHMOD=chmod -R 777
+NAME=ring
 
 .PHONY: install clean uninstall
 
-$(LIBDIR)/libring.a: $(OBJDIR)/ring.o
+$(LIBDIR)/lib$(NAME).a: $(OBJDIR)/$(NAME).o
 	$(MKDIR) $(LIBDIR)
 	ar r $@ $<
 
@@ -22,15 +23,15 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -o $@ $<
 
 install:
-	$(CP) $(LIBDIR)/libring.a /usr/lib/libring.a
-	$(CHMOD) /usr/lib/libring.a
-	$(MKDIR) /usr/include/ring/
-	$(CHMOD) /usr/include/ring/
-	$(CP) $(INCLUDEDIR)/* /usr/include/ring/
+	$(CP) $(LIBDIR)/lib$(NAME).a /usr/lib/lib$(NAME).a
+	$(CHMOD) /usr/lib/lib$(NAME).a
+	$(MKDIR) /usr/include/$(NAME)/
+	$(CHMOD) /usr/include/$(NAME)/
+	$(CP) $(INCLUDEDIR)/* /usr/include/$(NAME)/
 
 uninstall:
-	$(RMDIR) /usr/include/ring
-	$(RM) /usr/lib/libring.a
+	$(RMDIR) /usr/include/$(NAME)
+	$(RM) /usr/lib/lib$(NAME).a
 
 clean:
 	$(RMDIR) $(LIBDIR)
