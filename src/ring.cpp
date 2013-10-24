@@ -10,7 +10,7 @@ Ring::Ring(const char* key, unsigned int length, const char* salt, unsigned int 
 	assert(length > 0);
 	assert(length <= MAPSIZE);
 	assert(saltLength > 0);
-	assert(saltLength <= IVSIZE);
+	assert(saltLength <= IVMAXSIZE);
 #endif
 	this->saltLength = saltLength;
 	for (unsigned int i=0; i<saltLength; i++)

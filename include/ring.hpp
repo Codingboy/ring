@@ -5,8 +5,8 @@
 #define MAPSIZE (256)
 #endif
 
-#ifndef IVSIZE
-#define IVSIZE (1024)
+#ifndef IVMAXSIZE
+#define IVMAXSIZE (1024)
 #endif
 
 class Ring
@@ -27,7 +27,7 @@ class Ring
 		 * @pre \p length <= MAPSIZE
 		 * @pre \p salt is allocated for \p saltLength characters
 		 * @pre \p saltLength > 0
-		 * @pre \p saltLength <= IVSIZE
+		 * @pre \p saltLength <= IVMAXSIZE
 		 */
 		Ring(const char* key, unsigned int length, const char* salt, unsigned int saltLength, unsigned int mutationInterval);
 		/**
@@ -85,9 +85,9 @@ class Ring
 		unsigned char decode(unsigned char c);
 		unsigned char map[MAPSIZE];
 		unsigned char decodeMap[MAPSIZE];
-		unsigned char salt[IVSIZE];
+		unsigned char salt[IVMAXSIZE];
 		unsigned int saltLength;
-		unsigned char initSalt[IVSIZE];
+		unsigned char initSalt[IVMAXSIZE];
 		unsigned int actualSalt;
 		unsigned char pw[MAPSIZE];
 		unsigned int pwLength;
